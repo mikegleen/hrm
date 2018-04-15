@@ -1,0 +1,5 @@
+. activate py6
+fn=$(date +"%Y-%m-%d")
+eval OUTDIR="~/Downloads/hrm/analytics/audience results/analytics/audience"
+python src/analytics/audience.py $1 $OUTDIR/${fn}.csv
+python src/analytics/audience2.py $1 $OUTDIR/${fn}_weekly.csv

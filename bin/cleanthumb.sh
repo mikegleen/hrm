@@ -1,0 +1,1 @@
+find ~/Downloads/hrm/events/*/thumb -type d -depth 0 -exec rm -rf {} \;

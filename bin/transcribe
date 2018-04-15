@@ -1,0 +1,6 @@
+# Process the individual .doc files in the data/transcribe directory,
+# converting any updated ones to html.
+#
+# Then call html2csv to merge the output to results/csv/merged.csv.
+python src/trans2html.py
+python src/html2csv.py 
