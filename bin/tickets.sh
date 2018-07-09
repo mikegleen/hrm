@@ -13,8 +13,10 @@
 #    (replaced by pretty2.py)
 #
 set -e
-echo activating py6
-. activate py6
+if [[ "$CONDA_DEFAULT_ENV" != "py6" ]]; then
+    echo Activating py6...
+    . activate py6
+fi
 pushd ~/pyprj/hrm
 mkdir -p temp
 TEMP=temp/clean_tickets.csv
