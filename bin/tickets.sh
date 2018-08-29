@@ -12,10 +12,11 @@
 # Note the Excel macro to reformat the output is: Ctrl-Shift-A
 #    (replaced by pretty2.py)
 #
+TICKETENV=py6
 set -e
-if [[ "$CONDA_DEFAULT_ENV" != "py6" ]]; then
-    echo Activating py6...
-    . activate py6
+if [[ "$CONDA_DEFAULT_ENV" != "$TICKETENV" ]]; then
+    echo Activating ${TICKETENV}
+    . activate ${TICKETENV}
 fi
 pushd ~/pyprj/hrm
 mkdir -p temp
