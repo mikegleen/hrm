@@ -13,6 +13,7 @@
 #    (replaced by pretty2.py)
 #
 TICKETENV=py6
+TEMP=temp/clean_tickets.csv
 set -e
 if [[ "$CONDA_DEFAULT_ENV" != "$TICKETENV" ]]; then
     echo Activating ${TICKETENV}
@@ -20,7 +21,6 @@ if [[ "$CONDA_DEFAULT_ENV" != "$TICKETENV" ]]; then
 fi
 pushd ~/pyprj/hrm
 mkdir -p temp
-TEMP=temp/clean_tickets.csv
 python src/tickets/clean.py "$1" ${TEMP}
 # LASTYEAR is the year of last month. It will only be the actual last year if this month is January.
 LASTYEAR=`python -c "import datetime as dt;print((dt.date.today() - dt.timedelta(days=dt.date.today().day)).year)"`
