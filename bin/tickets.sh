@@ -14,12 +14,13 @@
 # Note the Excel macro to reformat the output is: Ctrl-Shift-A
 #    (replaced by pretty2.py)
 #
-TICKETENV=py6
+TICKETENV=py7
 TEMP=temp/clean_tickets.csv
 set -e
 if [[ "$CONDA_DEFAULT_ENV" != "$TICKETENV" ]]; then
     echo Activating ${TICKETENV}
-    . activate ${TICKETENV}
+    eval "$(conda shell.bash hook)"
+    conda activate ${TICKETENV}
 fi
 pushd ~/pyprj/hrm
 mkdir -p temp
@@ -37,5 +38,5 @@ eval OUTDIR="~/pyprj/hrm/results/tickets/${LASTYEAR}-${LASTMONTH}"
 mkdir -p ${OUTDIR}
 python src/tickets/daily.py ${TEMP} -m ${LASTMONTH} -o ${OUTDIR}
 python src/tickets/weekly.py ${TEMP} -m ${LASTMONTH} -o ${OUTDIR}
-python src/tickets/pretty2.py ${OUTDIR} ${OUTDIR}/tickets_${LASTYEAR}-${LASTMONTH}_merged.xlsx
+python src/tickets/pretty2.py ${OUTDIR} ${OUTDIR}/tickets_${LASTYEAR}-${LASTMONTH}_merged.xlsx 
 # rm $TEMP
