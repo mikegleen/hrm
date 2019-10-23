@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Produce the monthly Ticket Sales Report for last month.
+# Produce the monthly Ticket Sales Report for last month or for a specified
+# month.
 #
 # Parameters:
 #   1. The file created by the Store Operations Manager, the "Detailed Ticket
@@ -10,9 +11,6 @@
 # 
 # Output:
 #   XLSX file to ~/pyprj/hrm/results/tickets/${LASTYEAR}-${LASTMONTH}
-#
-# Note the Excel macro to reformat the output is: Ctrl-Shift-A
-#    (replaced by pretty2.py)
 #
 TICKETENV=py7
 TEMP=temp/clean_tickets.csv
