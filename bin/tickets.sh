@@ -8,11 +8,11 @@
 #       Report by Date"
 #   2. Optional 4-digit year
 #   3. Optional 2-digit month (required if parameter 2 is set)
-# 
+#
 # Output:
 #   XLSX file to ~/pyprj/hrm/results/tickets/${LASTYEAR}-${LASTMONTH}
 #
-TICKETENV=py7
+TICKETENV=py8
 TEMP=temp/clean_tickets.csv
 set -e
 if [[ "$CONDA_DEFAULT_ENV" != "$TICKETENV" ]]; then
@@ -36,5 +36,6 @@ eval OUTDIR="~/pyprj/hrm/results/tickets/${LASTYEAR}-${LASTMONTH}"
 mkdir -p ${OUTDIR}
 python src/tickets/daily.py ${TEMP} -m ${LASTMONTH} -o ${OUTDIR}
 python src/tickets/weekly.py ${TEMP} -m ${LASTMONTH} -o ${OUTDIR}
-python src/tickets/pretty2.py ${OUTDIR} ${OUTDIR}/tickets_${LASTYEAR}-${LASTMONTH}_merged.xlsx 
+echo python src/tickets/pretty2.py ${OUTDIR} ${OUTDIR}/tickets_${LASTYEAR}-${LASTMONTH}_merged.xlsx
+python src/tickets/pretty2.py ${OUTDIR} ${OUTDIR}/tickets_${LASTYEAR}-${LASTMONTH}_merged.xlsx
 # rm $TEMP

@@ -1,8 +1,8 @@
 #!/bin/bash
 echo $0
-if [[ "$CONDA_DEFAULT_ENV" != "py7" ]]; then
-    echo Activating py7...
+if [[ "$CONDA_DEFAULT_ENV" != "py8" ]]; then
+    echo Activating py8...
     eval "$(conda shell.bash hook)"
-    conda activate py7
+    conda activate py8
 fi
 python src/web/thumb.py "$@"
