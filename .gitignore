@@ -10,7 +10,6 @@ evaluation/
 fromweb/
 modes/
 results/
-src/
 temp/
 tmp/
 misc/
@@ -25,3 +24,4 @@ outdir/
 HRM_Downloads
 collection/
 children/
+__pycache__/
