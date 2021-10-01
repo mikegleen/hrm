@@ -16,7 +16,8 @@ import sys
 
 BACKGROUND = 'F2F4F6'
 WHITE = 'FFFFFF'
-IMAGE_MODE = 'RGBA'
+IMAGE_MODE_RGBA = 'RGBA'
+IMAGE_MODE_RGB = 'RGB'
 
 Img = namedtuple('Img', ['w', 'h', 'name', 'background'])
 
@@ -71,7 +72,7 @@ def pad_height(inimage, target_width, target_height, background):
     trace(2, 'Resizing image to ({}, {})', target_width, unpadded_height)
     resized_image = inimage.resize((target_width, unpadded_height))
     y_origin = int(math.ceil((target_height - unpadded_height) / 2.))
-    target_image = Image.new(IMAGE_MODE, (target_width, target_height),
+    target_image = Image.new(image_mode, (target_width, target_height),
                              background)
     target_image.paste(resized_image, (0, y_origin))
     return target_image
@@ -96,7 +97,7 @@ def pad_width(inimage, target_width, target_height, background):
     trace(2, "Resizing image to ({}, {})", unpadded_width, target_height)
     resized_image = inimage.resize((unpadded_width, target_height))
     x_origin = int(math.ceil((target_width - unpadded_width) / 2.))
-    target_image = Image.new(IMAGE_MODE, (target_width, target_height),
+    target_image = Image.new(image_mode, (target_width, target_height),
                              background)
     target_image.paste(resized_image, (x_origin, 0))
     return target_image
@@ -107,8 +108,13 @@ def onefile(infile, outdir, img_sizes):
     Iterate over the target image sizes that we want to create and resize and
     pad them accordingly.
     """
+    global image_mode
     basename = os.path.basename(infile)  # 'a/b/xyz.jpg' -> 'xyz.jpg'
     front, extension = os.path.splitext(basename)  # 'xyz.jpg' -> 'xyz', '.jpg'
+    if extension.lower() in ('.jpg', '.jpeg'):
+        image_mode = IMAGE_MODE_RGB
+    else:
+        image_mode = IMAGE_MODE_RGBA
     try:
         input_image = Image.open(infile)
     except OSError:
@@ -160,7 +166,7 @@ def get_imgs(basekey):
                 wh[key] = THUMB_IMG_SIZES[key]
     if not wh:
         raise ValueError()
-    trace(2,'get_imgs: returning {}', wh)
+    trace(2, 'get_imgs: returning {}', wh)
     return wh
 
 
@@ -197,9 +203,9 @@ def get_args():
                                  '{}x{}'.format(q[x].w, q[x].h),
                                  q[x].background, q[x].name) for x in
                           sorted(q)]))
-    parser = argparse.ArgumentParser(formatter_class=
-                                     argparse.RawDescriptionHelpFormatter,
-                                     description='''
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description='''
     Create multiple thumbnail images using a predefined set of dimensions or
     width and height values passed as parameters. Borders are added at the top
     and bottom or the sides to fit the given dimensions.
@@ -248,7 +254,7 @@ def get_args():
     args = parser.parse_args()
     if bool(args.height) != bool(args.width):
         raise ValueError('You must specify either both width and height or'
-        + ' neither.')
+                         ' neither.')
     if bool(args.key) and bool(args.height):
         raise ValueError('You may not specify both the key and also height'
                          + ' and width.')
@@ -264,10 +270,10 @@ def get_args():
 if __name__ == '__main__':
     if sys.version_info.major < 3 or sys.version_info.minor < 6:
         raise ImportError('requires Python 3.6')
+    image_mode = None  # will be resolved in onefile()
     try:
         _args = get_args()
     except ValueError as v:
         print(v)
         sys.exit(1)
     main(_args)
-
