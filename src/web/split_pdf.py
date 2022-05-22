@@ -38,6 +38,5 @@ def main(args):
 
 
 if __name__ == '__main__':
-    if sys.version_info.major < 3:
-        raise ImportError('requires Python 3')
+    assert sys.version_info >= (3, 6)
     main(getargs())
