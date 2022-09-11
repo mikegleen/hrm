@@ -24,4 +24,5 @@ outdir/
 HRM_Downloads
 collection/
 children/
+scans/
 __pycache__/
