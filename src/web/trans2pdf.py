@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-  needed because of embedded "£"
 """
-Convert all of the .doc or .docx format files in a directory to pdf.
+Convert all of the .doc, .docx, or .jpg format files in a directory to pdf.
 
 Requires libreOffice to be installed and a batch file created containing:
     /Applications/LibreOffice.app/Contents/MacOS/soffice "$@"
@@ -38,7 +38,7 @@ def main():
     starttime = time.time()
     for name in os.listdir(_args.indir):
         base, ext = os.path.splitext(name)
-        if ext.lower() in ('.doc', '.docx'):
+        if ext.lower() in ('.doc', '.docx', '.jpg'):
             docfile = os.path.join(_args.indir, name)
             pdf_file = name[:-len(ext)] + '.pdf'
             pdf_file = os.path.join(_args.outdir, pdf_file)

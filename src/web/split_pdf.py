@@ -15,7 +15,7 @@ import sys
 def getargs():
     parser = argparse.ArgumentParser()
     parser.add_argument('infile')
-    parser.add_argument('-o', '--outdir', default='.', help='''
+    parser.add_argument('-o', '--outdir', help='''
     the output directory to contain the split pages. The default is
     the directory containing the input file.
     ''')
@@ -25,13 +25,14 @@ def getargs():
 
 def main(args):
     inputpdf = PdfFileReader(open(args.infile, "rb"))
-    basename = os.path.split(args.infile)[1]
-    basename = os.path.splitext(basename)[0]
+    indir, basename = os.path.split(args.infile)
+    basename = os.path.splitext(basename)[0]  # discard ".pdf"
+    outdir = args.outdir if args.outdir else indir
     for i in range(inputpdf.numPages):
         output = PdfFileWriter()
         output.addPage(inputpdf.getPage(i))
         outdirpath = os.path.join(
-            args.outdir, "{}-{:03}.pdf".format(basename, i + 1))
+            outdir, "{}-{:03}.pdf".format(basename, i + 1))
         # print(outdirpath)
         with open(outdirpath, "wb") as outputStream:
             output.write(outputStream)

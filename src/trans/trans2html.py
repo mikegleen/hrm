@@ -24,7 +24,7 @@ import subprocess
 import sys
 import time
 
-CMD = ('/Users/mlg/bin/soffice --headless --convert-to html {docfile} '
+CMD = ("/Users/mlg/bin/soffice --headless --convert-to html {docfile} " 
        '--outdir {htmldir}')
 DOCDIR = os.path.join('data', 'doc')
 HTMLDIR = os.path.join('results', 'html')
@@ -34,16 +34,22 @@ def handle_subdir(dirname):
     # handle transcribexxx directory under data/doc
     print(dirname)
     for name in os.listdir(os.path.join(DOCDIR, dirname)):
-        # print('    ', name)
-        if name.lower().endswith('.doc'):
+        print('    ', name)
+        if name.lower().endswith('.docx'):
             docfile = os.path.join(DOCDIR, dirname, name)
             htmldir = os.path.join(HTMLDIR, dirname)
             htmlfile = name[:-4] + '.html'
             htmlfile = os.path.join(htmldir, htmlfile)
-            if os.path.exists(htmlfile) and (os.path.getmtime(docfile) <
-                                             os.path.getmtime(htmlfile)):
-                print('        unmodified: ', name)
-                continue
+            # if os.path.exists(htmlfile) and (os.path.getmtime(docfile) <
+            #                                  os.path.getmtime(htmlfile)):
+            #     print('        unmodified: ', name)
+            #     continue
+            if ' ' in docfile:
+                newname = name.replace(' ', '_')
+                newpath = os.path.join(DOCDIR, dirname, newname)
+                print(f'{newpath=}')
+                os.rename(docfile, newpath)
+                docfile = newpath
             cmd = CMD.format(docfile=docfile, htmldir=htmldir)
             print('        ', cmd)
             subprocess.check_call(cmd.split())
@@ -53,6 +59,7 @@ def handle_subdir(dirname):
 
 def main():
     starttime = time.time()
+    print(DOCDIR)
     for name in os.listdir(DOCDIR):
         if os.path.isdir(os.path.join(DOCDIR, name)):
             handle_subdir(name)

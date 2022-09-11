@@ -1,14 +1,12 @@
 #!/usr/bin/python
 """
-Convert an image file to JPEG using the OSX utility sips.
+Convert a directory of image files to JPEG using the OSX utility sips.
 
-The files must reside in a subdirectory of the directory named as the first
-parameter.
+There is one input parameter, a directory name. The directory must contain
+a subdirectory named "tif". The files must reside in this subdirectory.
 
-To use this script, copy your image file to the "tif" subdirectory of the base
-directory.
-
-The script will create a JPEG file in the "jpg" subdirectory.
+The script will create a JPEG file in the "jpg" subdirectory which will be
+created if it doesn't exist.
 
 """
 
