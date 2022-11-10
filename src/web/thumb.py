@@ -14,8 +14,9 @@ from PIL import Image
 import sys
 
 
-BACKGROUND = 'F2F4F6'
+GREY = 'F2F4F6'
 WHITE = 'FFFFFF'
+GOLD = 'AA915A'
 IMAGE_MODE_RGBA = 'RGBA'
 IMAGE_MODE_RGB = 'RGB'
 
@@ -31,7 +32,7 @@ THUMB_IMG_SIZES = {
     'm-t': Img(1280, 826, 'media centre thumbnail', WHITE),
     'n-t': Img(1280, 826, 'news thumbnail', WHITE),
     'n-w': Img(1280, 410, 'news wide', WHITE),
-    'ex-t': Img(700, 454, 'exhibition thumbnail', BACKGROUND),
+    'ex-t': Img(700, 454, 'exhibition thumbnail', GREY),
     'ex-p': Img(1240, 1946, 'exhibition portrait image', WHITE),
     'sq-x': Img(1024, 1024, 'square for skiddle', WHITE),
     'nm-x': Img(1024, 680, 'netmums', WHITE),
@@ -72,6 +73,7 @@ def pad_height(inimage, target_width, target_height, background):
     trace(2, 'Resizing image to ({}, {})', target_width, unpadded_height)
     resized_image = inimage.resize((target_width, unpadded_height))
     y_origin = int(math.ceil((target_height - unpadded_height) / 2.))
+    # noinspection PyTypeChecker
     target_image = Image.new(image_mode, (target_width, target_height),
                              background)
     target_image.paste(resized_image, (0, y_origin))
@@ -97,6 +99,7 @@ def pad_width(inimage, target_width, target_height, background):
     trace(2, "Resizing image to ({}, {})", unpadded_width, target_height)
     resized_image = inimage.resize((unpadded_width, target_height))
     x_origin = int(math.ceil((target_width - unpadded_width) / 2.))
+    # noinspection PyTypeChecker
     target_image = Image.new(image_mode, (target_width, target_height),
                              background)
     target_image.paste(resized_image, (x_origin, 0))
@@ -174,7 +177,7 @@ def main(args):
     os.makedirs(args.outdir, exist_ok=True)
     trace(1, "Output directory: {}", args.outdir)
     wh = THUMB_IMG_SIZES
-    background = _args.background if _args.background else BACKGROUND
+    background = _args.background if _args.background else GREY
     if args.width:
         wh = {'th': (args.width, args.height, 'anonymous', background)}
     elif args.key:
@@ -225,7 +228,9 @@ def get_args():
         which thumbnail is being produced.
         The number should be coded as six hex digits. The leading "0x" is
         optional. If the number given is not valid hexadecimal, the program
-        will abort.''')
+        will abort. The value can also be literal "white", "gold", or "grey"
+        in which case values "FFFFFF", "AA915A", or "F2F4F6" will be
+        substituted respectively.''')
     parser.add_argument('--height', type=int, default=0, help='''
         Set an explicit height to pad to (sorry, -h is taken). You must also
         specify width. If specified, a single thumbnail file is created rather
@@ -264,6 +269,15 @@ def get_args():
         else:
             args.outdir, _ = os.path.split(args.infile)
         args.outdir = os.path.join(args.outdir, 'thumb')
+    if args.background:
+        match args.background.lower():
+            case 'white':
+                args.background = WHITE
+            case 'gold':
+                args.background = GOLD
+            case 'grey' | 'gray':
+                args.background = GREY
+
     return args
 
 
