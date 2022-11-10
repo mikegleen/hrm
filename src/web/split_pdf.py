@@ -7,8 +7,7 @@ zero-th page, but numbering the files from 001.
 """
 import argparse
 import os.path
-# noinspection PyProtectedMember
-from PyPDF2 import PdfFileWriter, PdfFileReader
+from PyPDF2 import PdfWriter, PdfReader
 import sys
 
 
@@ -24,20 +23,19 @@ def getargs():
 
 
 def main(args):
-    inputpdf = PdfFileReader(open(args.infile, "rb"))
+    inputpdf = PdfReader(args.infile)
     indir, basename = os.path.split(args.infile)
     basename = os.path.splitext(basename)[0]  # discard ".pdf"
     outdir = args.outdir if args.outdir else indir
     for i in range(inputpdf.numPages):
-        output = PdfFileWriter()
+        output = PdfWriter()
         output.addPage(inputpdf.getPage(i))
-        outdirpath = os.path.join(
+        outfilepath = os.path.join(
             outdir, "{}-{:03}.pdf".format(basename, i + 1))
-        # print(outdirpath)
-        with open(outdirpath, "wb") as outputStream:
-            output.write(outputStream)
+        print(f'{outfilepath=}')
+        output.write(outfilepath)
 
 
 if __name__ == '__main__':
-    assert sys.version_info >= (3, 6)
+    assert sys.version_info >= (3, 11)
     main(getargs())
