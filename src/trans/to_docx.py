@@ -40,6 +40,7 @@ def main():
     print('End to_docx. Elapsed time: {:.2f} seconds.'.
           format(time.time() - starttime))
 
+
 if __name__ == '__main__':
     if sys.version_info.major < 3:
         raise ImportError('requires Python 3')
