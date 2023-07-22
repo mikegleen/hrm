@@ -15,44 +15,44 @@ import subprocess
 import sys
 import time
 
-CMD = ('/Users/mlg/bin/soffice --headless --convert-to {format} {docfile} '
+CMD = ('/Users/mlg/bin/soffice --headless --convert-to {format} {infile} '
        '--outdir {outdir}')
 
 
 def main():
     starttime = time.time()
     for name in os.listdir(args.indir):
-        docpath = os.path.join(args.indir, name)
-        if os.path.isdir(docpath):
+        inpath = os.path.join(args.indir, name)
+        if os.path.isdir(inpath):
             continue
         root, ext = os.path.splitext(name)
-        if ext.lower() in ('.doc', '.docx'):
-            outfile = root + args.extension
-            outpath = os.path.join(args.outdir, outfile)
-            if os.path.exists(outpath) and (os.path.getmtime(docpath) <
-                                            os.path.getmtime(outpath)):
-                print('        unmodified: ', name)
-                continue
-            if ' ' in name:
-                newname = name.replace(' ', '_')
-                newpath = os.path.join(args.indir, newname)
-                os.rename(docpath, newpath)
-                docpath = newpath
-            cmd = CMD.format(docfile=docpath, outdir=args.outdir,
-                             format=args.format)
-            print('        ', cmd)
-            subprocess.check_call(cmd.split())
-        else:
-            print('        skipping ', name)
-    print('End trans2html. Elapsed time: {:.2f} seconds.'.format(
-        time.time() - starttime))
+        if ext.lower() not in args.filter:
+            print('******* skipping ', name)
+            continue
+        outfile = root + args.extension
+        outpath = os.path.join(args.outdir, outfile)
+        if os.path.exists(outpath) and (os.path.getmtime(inpath) <
+                                        os.path.getmtime(outpath)):
+            print('******* unmodified: ', name)
+            continue
+        if ' ' in name:
+            newname = name.replace(' ', '_')
+            newpath = os.path.join(args.indir, newname)
+            os.rename(inpath, newpath)
+            inpath = newpath
+        cmd = CMD.format(infile=inpath, outdir=args.outdir,
+                         format=args.format)
+        print('        ', cmd)
+        subprocess.check_call(cmd.split())
+    print('End soffice_convert. Elapsed time: {:.2f} seconds.'.format(
+          time.time() - starttime))
     return 0
 
 
 def getparser():
     parser = argparse.ArgumentParser(description='''
-    Convert all of the various format files in the data/transcribe* directories to
-    the specified format.
+    Convertthe files in the input directory whose extensions match the filter
+    criteria to the specified format.
     ''')
     parser.add_argument('indir', help='''
         The directory containing files to convert''')
@@ -60,6 +60,9 @@ def getparser():
         The directory to contain the converted files.''')
     parser.add_argument('format',  help='''
         The format to convert files to.''')
+    parser.add_argument('-f', '--filter', action='append', help='''
+        The extention of allowed input files. The default value is ['.doc', '.docx'].
+        Multiple --filter options may be specified.''')
     parser.add_argument('-e', '--extension',  help='''
         The extension to be added to the output files. If omitted, the format
         value is used.''')
@@ -73,11 +76,16 @@ def getargs(argv):
         arguments.extension = arguments.format
     if not arguments.extension.startswith('.'):
         arguments.extension = '.' + arguments.extension
+    if not arguments.filter:
+        arguments.filter = ['.doc', '.docx']
+    arguments.filter = [(f if f.startswith('.') else '.' + f).lower()
+                        for f in arguments.filter]
     return arguments
 
 
 if __name__ == '__main__':
-    if sys.version_info.major < 3:
-        raise ImportError('requires Python 3')
+    assert sys.version_info >= (3, 6)
+    if len(sys.argv) == 1:
+        sys.argv.append('-h')
     args = getargs(sys.argv)
     sys.exit(main())
