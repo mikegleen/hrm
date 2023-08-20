@@ -42,8 +42,14 @@ def main():
             inpath = newpath
         cmd = CMD.format(infile=inpath, outdir=args.outdir,
                          format=args.format)
-        print('        ', cmd)
-        subprocess.check_call(cmd.split())
+        cmd = ['/Users/mlg/bin/soffice', '--headless', '--convert-to', args.format,
+               inpath, '--outdir', args.outdir]
+        if args.format.lower() == 'csv':
+            cmd = ['/Users/mlg/bin/soffice', '--headless', '--convert-to',
+                   'csv:Text - txt - csv (StarCalc):44,34,76', inpath,
+                   '--outdir', args.outdir]
+        print('CMD:    ', cmd)
+        subprocess.check_call(cmd)
     print('End soffice_convert. Elapsed time: {:.2f} seconds.'.format(
           time.time() - starttime))
     return 0
