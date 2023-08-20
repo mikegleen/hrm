@@ -284,6 +284,8 @@ def get_args():
 if __name__ == '__main__':
     assert sys.version_info >= (3, 6)
     image_mode = None  # will be resolved in onefile()
+    if len(sys.argv) == 1:
+        sys.argv.append('-h')
     try:
         _args = get_args()
     except ValueError as v:
