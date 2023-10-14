@@ -38,7 +38,7 @@ def main():
     starttime = time.time()
     for name in os.listdir(_args.indir):
         base, ext = os.path.splitext(name)
-        if ext.lower() in ('.doc', '.docx', '.jpg'):
+        if ext.lower() in ('.doc', '.docx', '.jpg', '.jpeg'):
             docfile = os.path.join(_args.indir, name)
             pdf_file = name[:-len(ext)] + '.pdf'
             pdf_file = os.path.join(_args.outdir, pdf_file)
