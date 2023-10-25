@@ -15,6 +15,8 @@ import time
 from colorama import Style, Fore
 from PIL import Image
 
+IMGEXTS = ('.png', '.jpg', '.jpeg')
+
 
 def trace(level, template, *args, color=None):
     if _args.verbose >= level:
@@ -45,7 +47,7 @@ def main(indir, outdir):
             continue
         base, ext = os.path.splitext(name)
         trace(2, 'base={}, ext={}', base, ext)
-        if ext.lower() in ('.png', '.jpg', '.jpeg'):
+        if ext.lower() in IMGEXTS:
             imgpath = os.path.join(indir, name)
             pdf_file = name[:-len(ext)] + '.pdf'
             pdf_path = os.path.join(outdir, pdf_file)
