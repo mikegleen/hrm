@@ -1,7 +1,7 @@
 import csv
 import json
 
-f = open('/Users/mlg/Documents/hrm/aa_new_website/notes/trello_2021-01-10.json')
+f = open('/Users/mlg/pyprj/hrm/data/trello/2023-10-20_trello.json')
 csvf = open('tmp/trello.csv', 'w')
 parsed = json.load(f)
 cards = parsed['cards']
