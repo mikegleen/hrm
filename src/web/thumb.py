@@ -46,7 +46,7 @@ def trace(level, template, *args):
         print(template.format(*args))
 
 
-def make_background_tuple(hexstr):  # hexstr can be like F1F2F3 or 0xF1F2F3
+def make_background_tuple(hexstr: str):  # hexstr can be like F1F2F3 or 0xF1F2F3
     hexint = int(hexstr, 16)
     red = (hexint >> 16) & 0xFF
     green = (hexint >> 8) & 0xFF
