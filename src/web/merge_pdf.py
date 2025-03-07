@@ -11,14 +11,14 @@ Parameters:
 
 """
 import os
-from PyPDF2 import PdfFileMerger
+from PyPDF2 import PdfMerger
 import sys
 
 VERBOS = 1
 
 
 def main(indir, outfilename):
-    output = PdfFileMerger()
+    output = PdfMerger()
     for pdfname in sorted(os.listdir(indir)):
         pdfpath = os.path.join(indir, pdfname)
         if VERBOS > 0:
@@ -36,4 +36,3 @@ def main(indir, outfilename):
 if __name__ == '__main__':
     assert sys.version_info >= (3, 8)
     main(sys.argv[1], sys.argv[2])
-
