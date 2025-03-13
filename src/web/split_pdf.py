@@ -27,9 +27,9 @@ def main(args):
     indir, basename = os.path.split(args.infile)
     basename = os.path.splitext(basename)[0]  # discard ".pdf"
     outdir = args.outdir if args.outdir else indir
-    for i in range(inputpdf.numPages):
+    for i in range(len(inputpdf.pages)):
         output = PdfWriter()
-        output.addPage(inputpdf.getPage(i))
+        output.add_page(inputpdf.pages[i])
         outfilepath = os.path.join(
             outdir, "{}-{:03}.pdf".format(basename, i + 1))
         print(f'{outfilepath=}')
