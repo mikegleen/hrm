@@ -33,10 +33,13 @@ def getargs():
     # Stitch the two scans of each Spodnoodle cartoon to a single image.''')
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('indir', help='''
-    The input directory holding images to be split
+    the input directory to contain the files to be stitched. These are in the format where
+    the first scan filename, not including the extension, has a trailing "A" and the second
+    filename has a trailing "B". This conflicts with other usages but for specific data sets
+    is convenient. But see option --flagchar.
     ''')
     parser.add_argument('outdir', help='''
-    the output directory to contain the split files.
+    the output directory to contain the stitched files.
     ''')
     parser.add_argument('--dryrun', action='store_true', help='''
     If set, only scan the filenames but do no processing. 
