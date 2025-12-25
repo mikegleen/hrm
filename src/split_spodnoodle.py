@@ -94,14 +94,11 @@ def getargs():
     The input directory holding images to be split.
     ''')
     parser.add_argument('outdir', help='''
-    The output directory to contain the split files.
-    ''')
+    The output directory to contain the split files. ''')
     parser.add_argument('--dryrun', action='store_true', help='''
-    If set, only scan the filenames but do no processing. 
-    ''')
-    parser.add_argument('--flagchar', help='''
-    If specified, then instead of a pattern of [AB] being the part indicator, this character
-    will specify the file part to stitch, the part indicated by the digit following the character.
+    If set, only scan the filenames but do no processing. ''')
+    parser.add_argument('--flagchar', required=True, help='''
+    This character specifies the file part to stitch, the part indicated by the digit following the character.
 
     For example, --flagchar="#" means that a trailing "#1" and "#2" are expected (for two files to stitch)
      Additional files may be specified, up to "#9". The most convenient flag character may vary by operating
@@ -109,20 +106,17 @@ def getargs():
      used but note that these are case sensitive.''')
     # Note % character escaped but prints normally.
     parser.add_argument('--mdacode', default='LDHRM', help='''
-    The MDA code that prepends some accession numbers.
-    ''')
-    parser.add_argument('--mode',
-                        type=int, choices=MODES, default=cv.Stitcher_SCANS,
-                        help=f'''Determines configuration of stitcher. The default is `SCANS` ({cv.Stitcher_SCANS})
-                             mode suitable for stitching materials under affine transformation, such as scans.
-                             Option `PANORAMA` ({cv.Stitcher_PANORAMA}) is suitable for creating photo panoramas.
-                             ''')
+    The MDA code that prepends some accession numbers. ''')
     parser.add_argument('--overwrite', action='store_true', help='''
-    If not set, only the new scans will be processed.
-    ''')
+    If not set, only the new scans will be processed. ''')
     parser.add_argument('-v', '--verbose', type=int, default=1, help='''
-        Set the verbosity. The default is 1 which prints summary information.
-        ''')
+        Set the verbosity. The default is 1 which prints summary information. ''')
+    parser.add_argument('--y1', nargs=2, type=int, required=True, help='''
+    The start and limit pixels for the y-axis of the first image.''')
+    parser.add_argument('--y2', nargs=2, type=int, required=True, help='''
+    The start and limit pixels for the y-axis of the second image.''')
+
+
     args = parser.parse_args()
     return args
 
@@ -148,35 +142,6 @@ def parse_filename(prefix) -> (str, str):
         return None, 3
     return [n + flag for n in names], 0
 
-'''
-    if prefix.startswith(_args.mdacode):
-        # print(f'{prefix=}')
-        # matchstring = rf'({_args.mdacode}\.\d+\.\d+(\.\d+)?)[AB]$'
-        # print(f'{matchstring=}')
-        if flagchar:
-            # print(f'{prefix=}, {flagchar=}')
-            m = re.match(rf'(?P<base>{_args.mdacode}\.\d+\.\d+(\.\d+)?)(?P<part>{flagchar}\d+)$', prefix)
-        else:
-            m = re.match(rf'(?P<base>{_args.mdacode}\.\d+\.\d+(\.\d+)?)(?P<part>[AB])$', prefix)
-        # print(f'{m=}')
-    else:
-        if flagchar:
-            m = re.match(rf'(?P<base>\D+\d+(\.\d+)?)(?P<part>{flagchar}\d+)$', prefix)
-        else:
-            m = re.match(rf'(?P<base>\D+\d+(\.\d+)?)(?P<part>[AB])$', prefix)
-    if not m:
-        return '', ''
-    return m['base'], m['part']
-'''
-
-def stitch_one(imgs):
-    stitcher = cv.Stitcher.create(_args.mode)
-    status, pano = stitcher.stitch(imgs)
-    if status != cv.Stitcher_OK:
-        trace(0, "Can't stitch images, error code = {}", status, color=Fore.RED)
-        return None
-    return pano
-
 
 def s(i: int):
     return '' if i == 1 else 's'
@@ -187,6 +152,7 @@ def main():
     nwritten = 0
     for filename in sorted(os.listdir(indir)):
         inpath = os.path.join(indir, filename)
+        trace(2, 'inpath={}', inpath)
         if not os.path.isfile(inpath):
             trace(1, 'Skipping not file {}', filename, color=Fore.YELLOW)
             continue
@@ -198,20 +164,28 @@ def main():
         if status:
             trace(1, 'Failed parse: {}, error: {}', filename, status, color=Fore.MAGENTA)
             continue
-        trace(2, 'filename="{}", files="{}", extension="{}"', filename, files, extension)
+        trace(2, 'input filename="{}", files="{}", extension="{}"', filename, files, extension)
+        if _args.dryrun:
+            continue
+        pixel_y = [_args.y1, _args.y2]
         for n in range(2):
-            # files[n] += extension
+            y_orig, y_lim = pixel_y[n]
             outfile = files[n] + extension
             outpath = os.path.join(_args.outdir, outfile)
-            trace(2, 'outpath={}', outpath)
+            trace(2, 'outpath={}, type={}', outpath, type(outpath))
             if not _args.overwrite and os.path.exists(outpath):
-                trace(2, 'Skipping already processed scan: {}', outfile)
+                trace(2, 'Skipping already processed file: {}', outfile)
                 continue
-    if _args.dryrun:
-        return
+            inimg = cv.imread(inpath)
+            height, width, _ = inimg.shape
+            trace(2,'height={}, width={}', height, width)
+            outimg = inimg[y_orig:y_lim, 0:width]
+            if _args.dryrun:
+                continue
+            cv.imwrite(str(outpath), outimg)
+            nwritten += 1
 
     elapsed = time.perf_counter() - t1
-
     trace(1, f'Elapsed: {elapsed:6.3f} seconds. {nwritten} file{s(nwritten)} written.')
 
 if __name__ == '__main__':
