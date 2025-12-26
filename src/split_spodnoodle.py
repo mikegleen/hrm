@@ -8,7 +8,6 @@
 """
 
 import argparse
-from collections import defaultdict
 from colorama import Fore, Style
 import cv2 as cv
 import os
@@ -16,66 +15,10 @@ import re
 import sys
 import time
 
+from id_utl import expand_idnum
 
 IMGEXTS = ('.png', '.jpg', '.jpeg')
-MODES = (cv.Stitcher_PANORAMA, cv.Stitcher_SCANS)
 
-def _expand_one_idnum(idstr: str) -> list[str]:
-    jlist = []
-    idstr = ''.join(idstr.split())  # remove all whitespace
-    if '-' in idstr or '/' in idstr:  # if ID is actually a range like JB021-23
-        if '&' in idstr:
-            raise ValueError(f'Bad accession number list: cannot contain both'
-                             f' "-" and "&": "{idstr}"')
-        if m := re.match(r'''(.+?)  # prefix like "JB" or "LDHRM.2024."
-                             (\d+)  # number up to the separator
-                             [-/]   # the separator can be "-" or "/"
-                             (.*?)  # possibly a prefix on the second part
-                             (\d+)$ # the trailing number
-                             ''', idstr, flags=re.VERBOSE):
-            prefix, num1, num2, lenvariablepart = _splitid(idstr, m)
-            try:
-                for suffix in range(num1, num2 + 1):
-                    newidnum = f'{prefix}{suffix:0{lenvariablepart}}'
-                    jlist.append(newidnum)
-            except ValueError:
-                raise ValueError(f'Bad accession number, contains "-" but not '
-                                 f'well formed: {m.groups()}')
-        else:
-            raise ValueError('Bad accession number, failed pattern match:', idstr)
-    elif '&' in idstr:
-        parts = idstr.split('&')
-        head = parts[0]
-        jlist.append(head)
-        m = re.match(r'(.+?)(\d+)$', head)
-        # prefix will be everything up to the trailing number. So for:
-        #   JB001 -> JB
-        #   LDHRM.2023.1 -> LDHRM.2023.
-        prefix = m[1]
-        for tail in parts[1:]:
-            if not tail.isnumeric():
-                raise ValueError(f'Extension numbers must be numeric: "{idstr}"')
-            jlist.append(prefix + tail)
-
-    else:
-        # It's just a single accession number.
-        jlist.append(idstr)
-    return jlist
-
-
-def expand_idnum(idnumstr: str) -> list[str]:
-    """
-    Expand an idnumstr to a list of idnums.
-    :param idnumstr: (See expand_one_idnum for the definition of idstr)
-        idnumstr ::= idstr | idnumstr,idstr
-    :return: list of idnums
-    """
-    idstrlist = idnumstr.split(',')
-    rtnlist = []
-    for idstr in idstrlist:
-        # _expand_one_idnum returns a list. Append the members of that list.
-        rtnlist += _expand_one_idnum(idstr)
-    return rtnlist
 
 
 def trace(level, template, *args, color=None):
@@ -121,13 +64,12 @@ def getargs():
     return args
 
 
-def parse_filename(prefix) -> (str, str):
+def parse_filename(prefix) -> (list, int):
     """
     :param prefix: The filename without the leading path or the extension
     :return: 1. The filename without the part indicator (A or B)
              2. The part indicator
     """
-    err = 0
     # Split off the flag string
     #
     m = re.match(rf'(.*)({flagchar}\d)$', prefix)
