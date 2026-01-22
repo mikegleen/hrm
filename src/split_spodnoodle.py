@@ -20,7 +20,6 @@ from id_utl import expand_idnum
 IMGEXTS = ('.png', '.jpg', '.jpeg')
 
 
-
 def trace(level, template, *args, color=None):
     if _args.verbose >= level:
         if color:
@@ -44,21 +43,20 @@ def getargs():
     This character specifies the file part to stitch, the part indicated by the digit following the character.
 
     For example, --flagchar="#" means that a trailing "#1" and "#2" are expected (for two files to stitch)
-     Additional files may be specified, up to "#9". The most convenient flag character may vary by operating
-     system. Do not use characters used in regular expressions. Known to be safe: "=#%%". Alphabetic letters may be
-     used but note that these are case sensitive.''')
+    Additional files may be specified, up to "#9". The most convenient flag character may vary by operating
+    system. Do not use characters used in regular expressions. Known to be safe: "=#%%". Alphabetic letters may be
+    used but note that these are case sensitive. Only two files are supported for now.''')
     # Note % character escaped but prints normally.
     parser.add_argument('--mdacode', default='LDHRM', help='''
-    The MDA code that prepends some accession numbers. ''')
+        The MDA code that prepends some accession numbers. ''')
     parser.add_argument('--overwrite', action='store_true', help='''
-    If not set, only the new scans will be processed. ''')
+        If not set, only the new scans will be processed. ''')
     parser.add_argument('-v', '--verbose', type=int, default=1, help='''
         Set the verbosity. The default is 1 which prints summary information. ''')
     parser.add_argument('--y1', nargs=2, type=int, required=True, help='''
-    The start and limit pixels for the y-axis of the first image.''')
+        The start and limit pixels for the y-axis of the first image.''')
     parser.add_argument('--y2', nargs=2, type=int, required=True, help='''
-    The start and limit pixels for the y-axis of the second image.''')
-
+        The start and limit pixels for the y-axis of the second image.''')
 
     args = parser.parse_args()
     return args
@@ -67,10 +65,10 @@ def getargs():
 def parse_filename(prefix) -> (list, int):
     """
     :param prefix: The filename without the leading path or the extension
-    :return: 1. The filename without the part indicator (A or B)
-             2. The part indicator
+    :return: 1. The expanded list of names to split into
+             2. Zero or an error code
     """
-    # Split off the flag string
+    # Split off the flag string (like #1)
     #
     m = re.match(rf'(.*)({flagchar}\d)$', prefix)
     if not m:
@@ -110,15 +108,16 @@ def main():
         if _args.dryrun:
             continue
         pixel_y = [_args.y1, _args.y2]
-        for n in range(2):
+        inimg = cv.imread(inpath)
+        for n in range(len(files)):
             y_orig, y_lim = pixel_y[n]
             outfile = files[n] + extension
             outpath = os.path.join(_args.outdir, outfile)
-            trace(2, 'outpath={}, type={}', outpath, type(outpath))
             if not _args.overwrite and os.path.exists(outpath):
                 trace(2, 'Skipping already processed file: {}', outfile)
                 continue
-            inimg = cv.imread(inpath)
+            else:
+                trace(2, 'outpath={}, type={}', outpath, type(outpath))
             height, width, _ = inimg.shape
             trace(2,'height={}, width={}', height, width)
             outimg = inimg[y_orig:y_lim, 0:width]
@@ -137,5 +136,5 @@ if __name__ == '__main__':
     _args = getargs()
     indir: str = _args.indir
     outdir: str = _args.outdir
-    flagchar:str = _args.flagchar
+    flagchar: str = _args.flagchar
     sys.exit(main())
