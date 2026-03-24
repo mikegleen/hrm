@@ -62,6 +62,20 @@ def getargs():
     return args
 
 
+def handle_parse_error(status, filename):
+    match status:
+        case 1:
+            message = 'Failed regex match.'
+        case 2:
+            message = 'expand_idnum() failed.'
+        case 3:
+            message = 'Two names not specified.'
+        case _:
+            message = 'unknown error'
+
+    trace(1, 'Failed parse: {}, error: {}, {}', filename, status, message, color=Fore.MAGENTA)
+
+
 def parse_filename(prefix) -> (list, int):
     """
     :param prefix: The filename without the leading path or the extension
@@ -102,7 +116,7 @@ def main():
             continue
         files, status = parse_filename(prefix)
         if status:
-            trace(1, 'Failed parse: {}, error: {}', filename, status, color=Fore.MAGENTA)
+            handle_parse_error(status, filename)
             continue
         trace(2, 'input filename="{}", files="{}", extension="{}"', filename, files, extension)
         if _args.dryrun:

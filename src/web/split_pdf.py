@@ -37,5 +37,7 @@ def main(args):
 
 
 if __name__ == '__main__':
-    assert sys.version_info >= (3, 11)
+    assert sys.version_info >= (3, 13)
+    if len(sys.argv) == 1:
+        sys.argv.append('-h')
     main(getargs())
