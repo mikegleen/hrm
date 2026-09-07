@@ -13,11 +13,12 @@ def main():
     # print(f'{len(articles)=}')
     for article in articles:
         town = article.find('p', class_='mda-town').text
+        code = article.find('p', class_='mda-code').text
         if town != 'London':
             continue
         # print(f'{town=}')
         museum = article.h4.text
-        print(f'{museum}')
+        print(f'{code}, {museum}, {town}')
 
 
 if __name__ == '__main__':
